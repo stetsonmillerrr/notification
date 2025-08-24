@@ -3,31 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snapchat+ iOS Notification Clone</title>
+<title>Snapchat+ iOS 18 Notification Clone</title>
 <style>
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text","SF Pro Display",Helvetica,Arial,sans-serif;
   background: #f0f0f0;
 }
 
 .ios-notification {
   position: fixed;
-  top: -150px;
+  top: -160px;
   left: 50%;
   transform: translateX(-50%);
   width: 92%;
-  max-width: 400px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(18px);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  padding: 12px 14px;
+  max-width: 420px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(22px);
+  border-radius: 17px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+  padding: 13px 16px;
   display: flex;
   align-items: center;
-  transition: top 0.6s cubic-bezier(0.22, 1.61, 0.36, 1);
+  transition: top 0.55s cubic-bezier(0.22, 1.61, 0.36, 1), opacity 0.3s ease, box-shadow 0.2s ease;
   z-index: 9999;
   touch-action: pan-y;
+  opacity: 0;
+}
+
+.ios-notification.show {
+  opacity: 1;
 }
 
 .ios-notification img {
@@ -35,26 +40,52 @@ body {
   height: 40px;
   border-radius: 12px;
   margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .ios-notification .text {
   flex: 1;
+  overflow: hidden;
 }
 
 .ios-notification .text strong {
+  display: block;
   font-weight: 600;
   font-size: 15px;
   line-height: 18px;
-  display: block;
-  margin-bottom: 2px;
   color: #000;
+  margin-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.ios-notification.show .text strong {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .ios-notification .text span {
+  display: block;
   font-size: 14px;
   line-height: 17px;
   color: #1c1c1e;
-  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  opacity: 0;
+  transform: translateY(-1px);
+  transition: opacity 0.25s ease 0.1s, transform 0.25s ease 0.1s;
+}
+
+.ios-notification.show .text span {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
 </head>
@@ -64,7 +95,7 @@ body {
   <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/Snapchat_logo.svg/1200px-Snapchat_logo.svg.png" alt="Snapchat Icon">
   <div class="text">
     <strong>stetson_miller0</strong>
-    <span>Sent you 1 month of Snapchat+! Tap to unlock your free month.</span>
+    <span>Gifted you 1 month of Snapchat+! Tap to unlock your free month.</span>
   </div>
 </div>
 
@@ -72,35 +103,38 @@ body {
 const notification = document.getElementById('notification');
 
 function showNotification() {
-  notification.style.top = '40px';
+  notification.classList.add('show');
+  notification.style.top = '45px';
 
-  // Haptic vibration if supported
-  if (navigator.vibrate) {
-    navigator.vibrate([20, 50, 20]);
-  }
+  if (navigator.vibrate) navigator.vibrate([20,50,20]);
 
-  setTimeout(() => {
-    hideNotification();
-  }, 4200);
+  setTimeout(() => hideNotification(), 4200);
 }
 
 function hideNotification() {
-  notification.style.top = '-150px';
+  notification.style.top = '-160px';
+  notification.classList.remove('show');
 }
 
-// Swipe-to-dismiss
-let startY = 0;
-let currentY = 0;
-
+// Swipe-to-dismiss with realistic iOS physics
+let startY = 0, currentY = 0;
 notification.addEventListener('touchstart', e => startY = e.touches[0].clientY);
 notification.addEventListener('touchmove', e => {
   currentY = e.touches[0].clientY;
   const deltaY = currentY - startY;
-  if (deltaY < 0) notification.style.top = `${40 + deltaY}px`;
+  if (deltaY < 0) {
+    notification.style.top = `${45 + deltaY}px`;
+    notification.style.boxShadow = `0 ${12 + (-deltaY)/5}px 35px rgba(0,0,0,0.25)`;
+    notification.style.opacity = `${1 + deltaY/150}`;
+  }
 });
 notification.addEventListener('touchend', () => {
   if (currentY - startY < -25) hideNotification();
-  else notification.style.top = '40px';
+  else {
+    notification.style.top = '45px';
+    notification.style.boxShadow = `0 12px 35px rgba(0,0,0,0.25)`;
+    notification.style.opacity = '1';
+  }
 });
 
 window.addEventListener('load', showNotification);
