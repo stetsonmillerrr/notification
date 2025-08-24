@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snapchat+ Gift Notification Clone</title>
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f0f0f0;
+  }
+
+  .ios-notification {
+    position: fixed;
+    top: -140px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    transition: top 0.6s cubic-bezier(0.25, 1.25, 0.5, 1), opacity 0.3s ease;
+    z-index: 9999;
+    touch-action: pan-y;
+  }
+
+  .ios-notification img {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    margin-right: 14px;
+  }
+
+  .ios-notification .text {
+    flex: 1;
+  }
+
+  .ios-notification .text strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .ios-notification .text span {
+    font-size: 14px;
+    color: #1c1c1e;
+  }
+</style>
+</head>
+<body>
+
+<div class="ios-notification" id="notification">
+  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/Snapchat_logo.svg/1200px-Snapchat_logo.svg.png" alt="Snapchat Icon">
+  <div class="text">
+    <strong>stetson_miller0</strong>
+    <span>Gifted you 1 month of Snapchat+! Tap to claim your free month.</span>
+  </div>
+</div>
+
+<script>
+const notification = document.getElementById('notification');
+
+// Show notification with spring effect and haptic vibration
+function showNotification() {
+  notification.style.top = '40px';
+
+  // Haptic vibration if supported
+  if (navigator.vibrate) {
+    navigator.vibrate([20, 50, 20]);
+  }
+
+  // Auto hide after 4 seconds
+  setTimeout(() => {
+    hideNotification();
+  }, 4000);
+}
+
+// Hide notification smoothly
+function hideNotification() {
+  notification.style.top = '-140px';
+}
+
+// Swipe-to-dismiss
+let startY = 0;
+let currentY = 0;
+
+notification.addEventListener('touchstart', e => {
+  startY = e.touches[0].clientY;
+});
+
+notification.addEventListener('touchmove', e => {
+  currentY = e.touches[0].clientY;
+  const deltaY = currentY - startY;
+  if (deltaY < 0) {
+    notification.style.top = `${40 + deltaY}px`;
+  }
+});
+
+notification.addEventListener('touchend', () => {
+  if (currentY - startY < -30) {
+    hideNotification();
+  } else {
+    notification.style.top = '40px';
+  }
+});
+
+// Show notification on page load
+window.addEventListener('load', showNotification);
+</script>
+
+</body>
+</html>
